@@ -6,10 +6,10 @@
 SENTRY_SERVER_EMAIL=sentry@yourdomain.com
 
 # Used in emails and to generate valid links on UI. Should be root URL for current sentry deployment
-SENTRY_URL_PREFIX=https://sentry.yourdomain.com
+#SENTRY_URL_PREFIX=https://sentry.yourdomain.com
 
 # Should be pingable from current machine
-SENTRY_EMAIL_HOST=smtpserver.com
+#SENTRY_EMAIL_HOST=smtpserver.com
 
 ## disables digest notifications
 #SENTRY_DISABLE_DIGESTS=True

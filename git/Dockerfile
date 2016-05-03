@@ -86,7 +86,7 @@ RUN [ "$SENTRY_BUILD" != '' ] \
     && mkdir -p /usr/src/sentry \
     && cd /usr/src/sentry \
     && curl -SL "https://github.com/buildinglink/sentry/archive/${SENTRY_BUILD}.tar.gz" | tar -xzf - --strip-components=1 \
-    && python setup.py bdist_wheel \
+    && python setup.py sdist bdist_wheel \
     && npm cache clear \
     && rm -rf /usr/local/node \
 

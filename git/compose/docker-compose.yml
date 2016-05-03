@@ -27,13 +27,14 @@ services:
     container_name: sentry-celery-beat
     env_file: sentry-env
     command: celery beat
+    working_dir: /tmp
     depends_on:
       - postgres
       - redis
   sentry_upgrade_db:
     image: ilyahumbar/sentry
     env_file: sentry-env
-    command: upgrade
+    command: upgrade --noinput
     depends_on:
       - postgres
       - redis
