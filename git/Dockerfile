@@ -6,6 +6,7 @@ RUN groupadd -r sentry && useradd -r -m -g sentry sentry
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
+        wget \
         gcc \
         git \
         libffi-dev \
@@ -14,6 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libxslt-dev \
         libyaml-dev \
     && rm -rf /var/lib/apt/lists/*
+
+RUN wget https://github.com/jwilder/dockerize/releases/download/v0.2.0/dockerize-linux-amd64-v0.2.0.tar.gz
+RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.2.0.tar.gz
 
 # Sane defaults for pip
 ENV PIP_NO_CACHE_DIR off
@@ -81,7 +85,7 @@ RUN [ "$SENTRY_BUILD" != '' ] \
 
     && mkdir -p /usr/src/sentry \
     && cd /usr/src/sentry \
-    && curl -SL "https://github.com/getsentry/sentry/archive/${SENTRY_BUILD}.tar.gz" | tar -xzf - --strip-components=1 \
+    && curl -SL "https://github.com/buildinglink/sentry/archive/${SENTRY_BUILD}.tar.gz" | tar -xzf - --strip-components=1 \
     && python setup.py bdist_wheel \
     && npm cache clear \
     && rm -rf /usr/local/node \
@@ -96,8 +100,11 @@ ENV SENTRY_CONF=/etc/sentry \
 
 RUN mkdir -p $SENTRY_CONF && mkdir -p $SENTRY_FILESTORE_DIR
 
-COPY sentry.conf.py /etc/sentry/
-COPY config.yml /etc/sentry/
+COPY sentry.conf.py $SENTRY_CONF
+COPY config.yml $SENTRY_CONF
+COPY requirements.txt $SENTRY_CONF
+
+RUN pip install -r $SENTRY_CONF/requirements.txt
 
 COPY docker-entrypoint.sh /
 

@@ -1,0 +1,52 @@
+version: '2'
+services:
+  sentry_wsgi:
+    restart: always
+    image: ilyahumbar/sentry
+    container_name: sentry
+    env_file: sentry-env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data/sentry:/var/lib/sentry/files
+  sentry_celery:
+    restart: always
+    image: ilyahumbar/sentry
+    container_name: sentry-celery
+    env_file: sentry-env
+    command: celery worker
+    depends_on:
+      - postgres
+      - redis
+  sentry_celery_beat:
+    restart: always
+    image: ilyahumbar/sentry
+    container_name: sentry-celery-beat
+    env_file: sentry-env
+    command: celery beat
+    depends_on:
+      - postgres
+      - redis
+  sentry_upgrade_db:
+    image: ilyahumbar/sentry
+    env_file: sentry-env
+    command: upgrade
+    depends_on:
+      - postgres
+      - redis
+  redis:
+    restart: always
+    image: redis
+    container_name: redis
+  postgres:
+    restart: always
+    image: postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=sentry 
+      - POSTGRES_USER=sentry
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data

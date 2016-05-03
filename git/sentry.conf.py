@@ -28,6 +28,10 @@
 #  SENTRY_MAILGUN_API_KEY
 #  SENTRY_SINGLE_ORGANIZATION
 #  SENTRY_SECRET_KEY
+#  SENTRY_ALLOW_REGISTRATION
+#  SENTRY_MAX_DICTIONARY_ITEMS
+#  SENTRY_DISABLE_DIGESTS
+#  SENTRY_DISABLE_NOTIFICATIONS_RATE_LIMIT
 from sentry.conf.server import *  # NOQA
 from sentry.utils.types import Bool
 
@@ -68,6 +72,9 @@ if postgres:
         },
     }
 
+# Extend maximum limits for data sent
+SENTRY_MAX_DICTIONARY_ITEMS = os.getenv('SENTRY_MAX_DICTIONARY_ITEMS', 210)
+
 # You should not change this setting after your database has been created
 # unless you have altered all schemas first
 SENTRY_USE_BIG_INTS = True
@@ -82,6 +89,9 @@ SENTRY_USE_BIG_INTS = True
 # Instruct Sentry that this install intends to be run by a single organization
 # and thus various UI optimizations should be enabled.
 SENTRY_SINGLE_ORGANIZATION = Bool(env('SENTRY_SINGLE_ORGANIZATION', True))
+
+SENTRY_FEATURES['auth:register'] = env('SENTRY_ALLOW_REGISTRATION') or False
+SENTRY_OPTIONS['system.url-prefix'] = env('SENTRY_URL_PREFIX') or 'http://localhost:9000'
 
 #########
 # Redis #
@@ -172,7 +182,10 @@ else:
 # Rate limits apply to notification handlers and are enforced per-project
 # automatically.
 
-SENTRY_RATELIMITER = 'sentry.ratelimits.redis.RedisRateLimiter'
+if Bool(env('SENTRY_DISABLE_NOTIFICATIONS_RATE_LIMIT', False)):
+    SENTRY_RATELIMITER = 'sentry.ratelimits.base.RateLimiter'
+else:
+    SENTRY_RATELIMITER = 'sentry.ratelimits.redis.RedisRateLimiter'
 
 ##################
 # Update Buffers #
@@ -209,7 +222,10 @@ SENTRY_TSDB = 'sentry.tsdb.redis.RedisTSDB'
 
 # The digest backend powers notification summaries.
 
-SENTRY_DIGESTS = 'sentry.digests.backends.redis.RedisBackend'
+if Bool(env('SENTRY_DISABLE_DIGESTS', False)):
+    SENTRY_DIGESTS = 'sentry.digests.backends.dummy.DummyBackend'
+else:
+    SENTRY_DIGESTS = 'sentry.digests.backends.redis.RedisBackend'
 
 ################
 # File storage #
@@ -259,6 +275,7 @@ else:
 
 # The email address to send on behalf of
 SENTRY_OPTIONS['mail.from'] = env('SENTRY_SERVER_EMAIL') or 'root@localhost'
+# SENTRY_OPTIONS['system.admin-email'] = 'admin@getsentry.com',
 
 # If you're using mailgun for inbound mail, set your API key and configure a
 # route to forward to /api/hooks/mailgun/inbound/

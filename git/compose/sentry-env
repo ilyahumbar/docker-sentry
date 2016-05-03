@@ -1,0 +1,31 @@
+### Enviroment variables for sentry deployment
+### see ses sentry.conf.py file for additional configuration options and details
+
+## Sentry Config
+# The email address to send on behalf of
+SENTRY_SERVER_EMAIL=sentry@yourdomain.com
+
+# Used in emails and to generate valid links on UI. Should be root URL for current sentry deployment
+SENTRY_URL_PREFIX=https://sentry.yourdomain.com
+
+# Should be pingable from current machine
+SENTRY_EMAIL_HOST=smtpserver.com
+
+## disables digest notifications
+#SENTRY_DISABLE_DIGESTS=True
+
+## Sentry Private Key. Should be regenerated for each deployment separately.
+SENTRY_SECRET_KEY=your_incredibly_secret_key
+
+SENTRY_USE_SSL=false
+
+## The following settings are here to connect sentry with DB and cache. These names are resolved inside docker environment
+# Postgres
+SENTRY_POSTGRES_HOST=postgres
+SENTRY_DB_NAME=sentry
+SENTRY_DB_USER=sentry
+SENTRY_DB_PASSWORD=sentry
+# Redis
+SENTRY_REDIS_HOST=redis
+
+
