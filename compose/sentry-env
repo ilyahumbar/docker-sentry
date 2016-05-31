@@ -27,5 +27,7 @@ SENTRY_DB_USER=sentry
 SENTRY_DB_PASSWORD=sentry
 # Redis
 SENTRY_REDIS_HOST=redis
+# Memcached
+SENTRY_MEMCACHED_HOST=memcached
 
 
