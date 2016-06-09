@@ -2,3 +2,4 @@ sentry-github
 sentry-slack
 sentry-jira
 sentry-trello
+datadog

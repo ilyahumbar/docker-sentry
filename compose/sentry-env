@@ -30,4 +30,6 @@ SENTRY_REDIS_HOST=redis
 # Memcached
 SENTRY_MEMCACHED_HOST=memcached
 
-
+## Datadog integration
+# SENTRY_DATADOG_API_KEY=your_datadog_api_key
+# SENTRY_DATADOG_APP_KEY=your_datadog_app_key

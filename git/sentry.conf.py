@@ -33,6 +33,8 @@
 #  SENTRY_DISABLE_DIGESTS
 #  SENTRY_DISABLE_NOTIFICATIONS_RATE_LIMIT
 #  SENTRY_MAIL_SUBJECT_PREFIX
+#  SENTRY_DATADOG_API_KEY
+#  SENTRY_DATADOG_APP_KEY
 from sentry.conf.server import *  # NOQA
 from sentry.utils.types import Bool
 
@@ -74,7 +76,7 @@ if postgres:
     }
 
 # Extend maximum limits for data sent
-SENTRY_MAX_DICTIONARY_ITEMS = os.getenv('SENTRY_MAX_DICTIONARY_ITEMS', 210)
+SENTRY_MAX_DICTIONARY_ITEMS = env('SENTRY_MAX_DICTIONARY_ITEMS', 210)
 
 # You should not change this setting after your database has been created
 # unless you have altered all schemas first
@@ -82,6 +84,17 @@ SENTRY_USE_BIG_INTS = True
 
 # If you're expecting any kind of real traffic on Sentry, we highly recommend
 # configuring the CACHES and Redis settings
+
+datadog_api = env('SENTRY_DATADOG_API_KEY')
+datadog_app = env('SENTRY_DATADOG_APP_KEY')
+
+if datadog_api:
+    SENTRY_METRICS_BACKEND = 'sentry.metrics.datadog.DatadogMetricsBackend'
+    SENTRY_METRICS_OPTIONS = {
+        'api_key': datadog_api,
+        'app_key': datadog_app,
+        'tags': {},
+    }
 
 ###########
 # General #
