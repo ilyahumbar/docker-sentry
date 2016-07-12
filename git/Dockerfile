@@ -103,11 +103,11 @@ ENV SENTRY_CONF=/etc/sentry \
 
 RUN mkdir -p $SENTRY_CONF && mkdir -p $SENTRY_FILESTORE_DIR
 
+COPY requirements.txt $SENTRY_CONF
+RUN pip install -r $SENTRY_CONF/requirements.txt
+
 COPY sentry.conf.py $SENTRY_CONF
 COPY config.yml $SENTRY_CONF
-COPY requirements.txt $SENTRY_CONF
-
-RUN pip install -r $SENTRY_CONF/requirements.txt
 
 COPY docker-entrypoint.sh /entrypoint.sh
 

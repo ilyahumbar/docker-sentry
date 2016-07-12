@@ -4,6 +4,8 @@
 # For Docker, the following environment variables are supported:
 #  SENTRY_POSTGRES_HOST
 #  SENTRY_POSTGRES_PORT
+#  SENTRY_CASSANDRA_HOST
+#  SENTRY_CASSANDRA_PORT
 #  SENTRY_DB_NAME
 #  SENTRY_DB_USER
 #  SENTRY_DB_PASSWORD
@@ -74,6 +76,17 @@ if postgres:
                 'autocommit': True,
             },
         },
+    }
+
+cassandra = env('SENTRY_CASSANDRA_HOST') or (env('CASSANDRA_PORT_9042_TCP_ADDR') and 'cassandra')
+if cassandra:
+    cassandra_port = env('SENTRY_CASSANDRA_PORT') or '9042'
+
+    SENTRY_NODESTORE = 'sentry.nodestore.cassandra.CassandraNodeStorage'
+    SENTRY_NODESTORE_OPTIONS = {
+        'servers': [
+            cassandra + ':' + cassandra_port,
+        ],
     }
 
 # Extend maximum limits for data sent
