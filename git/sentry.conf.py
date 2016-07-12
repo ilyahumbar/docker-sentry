@@ -262,7 +262,7 @@ else:
 ################
 
 # Any Django storage backend is compatible with Sentry. For more solutions see
-# the django-storages package: https://django-storages.readthedocs.org/en/latest/
+# the django-storages package: https://django-storages.readthedocs.io/en/latest/
 
 SENTRY_FILESTORE = 'django.core.files.storage.FileSystemStorage'
 SENTRY_FILESTORE_OPTIONS = {

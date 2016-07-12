@@ -1,11 +1,9 @@
-# Build from any git sha by passing `--build-arg SENTRY_BUILD=<sha>`
 FROM python:2.7.12-slim
 
 # add our user and group first to make sure their IDs get assigned consistently
 RUN groupadd -r sentry && useradd -r -m -g sentry sentry
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        wget \
         gcc \
         git \
         libffi-dev \
@@ -15,9 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libxslt-dev \
         libyaml-dev \
     && rm -rf /var/lib/apt/lists/*
-
-RUN wget https://github.com/jwilder/dockerize/releases/download/v0.2.0/dockerize-linux-amd64-v0.2.0.tar.gz
-RUN tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.2.0.tar.gz
 
 # Sane defaults for pip
 ENV PIP_NO_CACHE_DIR off
@@ -54,60 +49,17 @@ RUN set -x \
 # Support for RabbitMQ
 RUN pip install librabbitmq==1.6.1
 
-ARG SENTRY_BUILD=blk-changes
-ENV SENTRY_BUILD $SENTRY_BUILD
+ENV SENTRY_VERSION 8.6.0
 
-RUN [ "$SENTRY_BUILD" != '' ] \
-    # Install node to build assets
-    && export NODE_VERSION=4.4.5 \
-    && export GNUPGHOME="$(mktemp -d)" \
-    # gpg keys listed at https://github.com/nodejs/node
-    && for key in \
-      9554F04D7259F04124DE6B476D5A82AC7E37093B \
-      94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-      0034A06D9D9B0064CE8ADF6BF1747F4AD2306D93 \
-      FD3A5288F042B6850C66B31F09FE44734EB7990E \
-      71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
-      DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-      B9AE9905FFD7803F25714661B63B535A4C206CA9 \
-      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
-    ; do \
-      gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
-    done \
-    && mkdir -p /usr/local/node && PATH=/usr/local/node/bin:$PATH \
-    && apt-get update && apt-get install -y --no-install-recommends make g++ wget \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz" \
-    && wget "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
-    && gpg --verify SHASUMS256.txt.asc \
-    && grep " node-v$NODE_VERSION-linux-x64.tar.gz\$" SHASUMS256.txt.asc | sha256sum -c - \
-    && tar -xzf "node-v$NODE_VERSION-linux-x64.tar.gz" -C /usr/local/node --strip-components=1 \
-    && rm -r "$GNUPGHOME" "node-v$NODE_VERSION-linux-x64.tar.gz" SHASUMS256.txt.asc \
-
-    && mkdir -p /usr/src/sentry \
-    && cd /usr/src/sentry \
-    && wget -qO - "https://github.com/getsentry/sentry/archive/${SENTRY_BUILD}.tar.gz" | tar -xzf - --strip-components=1 \
-    && python setup.py sdist bdist_wheel \
-
-    # Now remove node since it's not needed anymore in the final container
-    && npm cache clear \
-    && rm -rf /usr/local/node \
-
-    && pip install dist/*.whl \
-
-    && apt-get purge -y --auto-remove make g++ wget \
-    && rm -rf /usr/src/sentry
+RUN pip install sentry==$SENTRY_VERSION
 
 ENV SENTRY_CONF=/etc/sentry \
     SENTRY_FILESTORE_DIR=/var/lib/sentry/files
 
 RUN mkdir -p $SENTRY_CONF && mkdir -p $SENTRY_FILESTORE_DIR
 
-COPY requirements.txt $SENTRY_CONF
-RUN pip install -r $SENTRY_CONF/requirements.txt
-
-COPY sentry.conf.py $SENTRY_CONF
-COPY config.yml $SENTRY_CONF
+COPY sentry.conf.py /etc/sentry/
+COPY config.yml /etc/sentry/
 
 COPY docker-entrypoint.sh /entrypoint.sh
 
