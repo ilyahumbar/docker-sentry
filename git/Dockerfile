@@ -5,6 +5,7 @@ FROM python:2.7.13-slim
 RUN groupadd -r sentry && useradd -r -m -g sentry sentry
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+	ca-certificates \
         wget \
         gcc \
         git \
@@ -90,7 +91,7 @@ RUN [ "$SENTRY_BUILD" != '' ] \
 
     && mkdir -p /usr/src/sentry \
     && cd /usr/src/sentry \
-    && wget -qO - "https://github.com/BuildingLink/sentry/archive/${SENTRY_BUILD}.tar.gz" | tar -xzf - --strip-components=1 \
+    && wget -qO - "https://github.com/BuildingLink/sentry/archive/${SENTRY_BUILD}.tar.gz" | tar -xzf - --strip-components=1  \
     && python setup.py sdist bdist_wheel \
 
     # Now remove node since it's not needed anymore in the final container

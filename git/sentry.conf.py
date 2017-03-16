@@ -38,6 +38,7 @@
 #  SENTRY_MAIL_SUBJECT_PREFIX
 #  SENTRY_DATADOG_API_KEY
 #  SENTRY_DATADOG_APP_KEY
+#  SENTRY_WEB_NUMBER_OF_WORKERS
 from sentry.conf.server import *  # NOQA
 from sentry.utils.types import Bool
 
@@ -264,10 +265,12 @@ else:
 # Any Django storage backend is compatible with Sentry. For more solutions see
 # the django-storages package: https://django-storages.readthedocs.io/en/latest/
 
-SENTRY_FILESTORE = 'django.core.files.storage.FileSystemStorage'
-SENTRY_FILESTORE_OPTIONS = {
-    'location': env('SENTRY_FILESTORE_DIR'),
-}
+SENTRY_OPTIONS['filestore.backend'] = 'django.core.files.storage.FileSystemStorage'
+SENTRY_OPTIONS.update({
+    'filestore.options': {
+        'location': env('SENTRY_FILESTORE_DIR'),
+    },
+})
 
 ##############
 # Web Server #
@@ -284,6 +287,8 @@ if Bool(env('SENTRY_USE_SSL', False)):
 SENTRY_WEB_HOST = '0.0.0.0'
 SENTRY_WEB_PORT = 9000
 SENTRY_WEB_OPTIONS = {
+    'protocol': 'uwsgi',
+    'workers': env('SENTRY_WEB_NUMBER_OF_WORKERS', 4),
     # 'workers': 3,  # the number of web workers
 }
 
