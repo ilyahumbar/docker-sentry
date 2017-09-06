@@ -23,6 +23,8 @@ services:
       - postgres
       - redis
       - memcached
+    volumes:
+      - ./data/sentry:/var/lib/sentry/files
   sentry_celery_beat:
     restart: always
     image: ilyahumbar/sentry
@@ -34,6 +36,8 @@ services:
       - postgres
       - redis
       - memcached
+    volumes:
+      - ./data/sentry:/var/lib/sentry/files
   sentry_upgrade_db:
     image: ilyahumbar/sentry
     env_file: sentry-env
@@ -42,6 +46,8 @@ services:
       - postgres
       - redis
       - memcached
+    volumes:
+      - ./data/sentry:/var/lib/sentry/files
   memcached:
     restart: always
     image: memcached
